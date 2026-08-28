@@ -1,12 +1,13 @@
 """PyQt5 front end for the TensorRT rock-paper-scissors game."""
 
 from collections import deque
+import os
 import random
 import sys
 import time
 
 import cv2
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import QLibraryInfo, Qt, QTimer
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 
@@ -26,6 +27,17 @@ from rps_game import (
 from ui.ui_rsp_game import Ui_MainWindow
 
 
+def configure_qt_plugins():
+    """Undo the Qt plugin path injected by the non-headless OpenCV wheel."""
+    plugin_path = QLibraryInfo.location(QLibraryInfo.PluginsPath)
+    os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = plugin_path
+
+    # OpenCV's bundled font path belongs to its own Qt build as well.
+    font_path = os.environ.get("QT_QPA_FONTDIR", "")
+    if "/cv2/qt/" in font_path:
+        os.environ.pop("QT_QPA_FONTDIR", None)
+
+
 class RPSGameWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -38,6 +50,8 @@ class RPSGameWindow(QMainWindow):
         self.camera = None
         self.mode = None
         self.countdown_end = None
+        self.next_round_at = None
+        self.auto_running = False
         self.histories = [
             deque(maxlen=STABLE_FRAMES),
             deque(maxlen=STABLE_FRAMES),
@@ -53,8 +67,8 @@ class RPSGameWindow(QMainWindow):
         self.ui.btn_multi.clicked.connect(self.show_multi_page)
         self.ui.single_start.clicked.connect(self.start_round)
         self.ui.btn_start.clicked.connect(self.start_round)
-        self.ui.single_stop.clicked.connect(self.show_menu_page)
-        self.ui.btn_stop.clicked.connect(self.show_menu_page)
+        self.ui.single_stop.clicked.connect(self.stop_game)
+        self.ui.btn_stop.clicked.connect(self.stop_game)
 
         self.ui.lbl_camera.setAlignment(Qt.AlignCenter)
         self.ui.lbl_single_camera.setAlignment(Qt.AlignCenter)
@@ -62,9 +76,12 @@ class RPSGameWindow(QMainWindow):
         self.update_score_labels()
 
     def show_menu_page(self):
+        self.auto_running = False
+        self.next_round_at = None
         self.stop_camera()
         self.mode = None
         self.countdown_end = None
+        self.set_start_buttons_enabled(True)
         self.ui.Page.setCurrentWidget(self.ui.menuPage)
 
     def show_single_page(self):
@@ -103,12 +120,24 @@ class RPSGameWindow(QMainWindow):
             self.camera = None
 
     def start_round(self):
-        if self.mode is None or self.countdown_end is not None:
+        if self.mode is None or self.auto_running:
             return
+        self.auto_running = True
+        self.set_start_buttons_enabled(False)
+        self.begin_countdown()
+
+    def begin_countdown(self):
         for history in self.histories:
             history.clear()
         self.countdown_end = time.monotonic() + 3.0
-        self.set_start_buttons_enabled(False)
+        self.next_round_at = None
+
+    def stop_game(self):
+        """Stop automatic rounds and return to the mode selection page."""
+        self.auto_running = False
+        self.countdown_end = None
+        self.next_round_at = None
+        self.show_menu_page()
 
     def set_start_buttons_enabled(self, enabled):
         self.ui.single_start.setEnabled(enabled)
@@ -163,6 +192,12 @@ class RPSGameWindow(QMainWindow):
 
     def update_countdown(self):
         if self.countdown_end is None:
+            if (
+                self.auto_running
+                and self.next_round_at is not None
+                and time.monotonic() >= self.next_round_at
+            ):
+                self.begin_countdown()
             return
         remaining = self.countdown_end - time.monotonic()
         result_label = self.ui.result_single if self.mode == "single" else self.ui.resultLabel
@@ -175,7 +210,9 @@ class RPSGameWindow(QMainWindow):
             self.finish_single_round()
         else:
             self.finish_multi_round()
-        self.set_start_buttons_enabled(True)
+        # Keep the result visible briefly, then automatically start the next round.
+        if self.auto_running:
+            self.next_round_at = time.monotonic() + 1.5
 
     def finish_single_round(self):
         human = stable_gesture(self.histories[0])
@@ -251,6 +288,7 @@ class RPSGameWindow(QMainWindow):
 
 
 def main():
+    configure_qt_plugins()
     app = QApplication(sys.argv)
     window = RPSGameWindow()
     window.show()
