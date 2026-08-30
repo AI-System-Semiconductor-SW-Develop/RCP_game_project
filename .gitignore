@@ -1,0 +1,4 @@
+*.engine
+*.plan
+__pycache__/
+*.pyc

@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1631</width>
+    <height>1212</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow {
+    background-color: #10141f;
+}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QStackedWidget" name="Page">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>640</width>
+      <height>480</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QMainWindow {
+    background-color: #10141f;
+}</string>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="menuPage">
+     <widget class="QSplitter" name="splitter_2">
+      <property name="geometry">
+       <rect>
+        <x>130</x>
+        <y>100</y>
+        <width>371</width>
+        <height>251</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">    background-color: #10141f;</string>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QLabel" name="lbl_title">
+       <property name="styleSheet">
+        <string notr="true">QLabel#lbl_title {
+    color: #ffffff;
+    font-size: 32px;
+    font-weight: 700;
+    padding: 12px;
+}</string>
+       </property>
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:24pt;&quot;&gt;가위바위보 게임&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+      <widget class="QSplitter" name="splitter">
+       <property name="styleSheet">
+        <string notr="true">    background-color: #10141f;</string>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <widget class="QPushButton" name="btn_single">
+        <property name="styleSheet">
+         <string notr="true">QPushButton#btn_single {
+    background-color: #1565c0;
+    border-color: #42a5f5;
+}
+
+QPushButton#singleButton:hover {
+    background-color: #1976d2;
+}
+
+QPushButton#singleButton:checked,
+QPushButton#multiButton:checked {
+    background-color: #00a878;
+    border: 3px solid #5cffca;
+    color: #ffffff;
+}
+
+QPushButton {
+    min-height: 48px;
+    padding: 4px 22px;
+    background-color: #252d3d;
+    color: #edf2f8;
+    border: 2px solid #394359;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+QPushButton:hover {
+    background-color: #303a4f;
+    border-color: #62708c;
+}
+
+QPushButton:pressed {
+    background-color: #161c28;
+    padding-top: 7px;
+    padding-bottom: 1px;
+}
+
+QPushButton:disabled {
+    background-color: #1b202c;
+    color: #687186;
+    border-color: #292f3d;
+}</string>
+        </property>
+        <property name="text">
+         <string>1인용</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btn_multi">
+        <property name="styleSheet">
+         <string notr="true">
+QPushButton#btn_multi {
+    background-color: #6a35b5;
+    border-color: #ab75f5;
+}
+
+QPushButton#multiButton:hover {
+    background-color: #7e45ca;
+}
+
+QPushButton#singleButton:checked,
+QPushButton#multiButton:checked {
+    background-color: #00a878;
+    border: 3px solid #5cffca;
+    color: #ffffff;
+}
+
+QPushButton {
+    min-height: 48px;
+    padding: 4px 22px;
+    background-color: #252d3d;
+    color: #edf2f8;
+    border: 2px solid #394359;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+QPushButton:hover {
+    background-color: #303a4f;
+    border-color: #62708c;
+}
+
+QPushButton:pressed {
+    background-color: #161c28;
+    padding-top: 7px;
+    padding-bottom: 1px;
+}
+
+QPushButton:disabled {
+    background-color: #1b202c;
+    color: #687186;
+    border-color: #292f3d;
+}</string>
+        </property>
+        <property name="text">
+         <string>2인용</string>
+        </property>
+       </widget>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="multiPage">
+     <widget class="QFrame" name="resultFrame">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>300</y>
+        <width>581</width>
+        <height>111</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QFrame#resultFrame {
+    background-color: #181e2b;
+    border: 2px solid #30394d;
+    border-radius: 16px;
+}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>561</width>
+         <height>76</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QLabel" name="resultLabel">
+          <property name="styleSheet">
+           <string notr="true">QLabel#resultLabel {
+    color: #58e6ba;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 5px;
+    qproperty-alignment: AlignCenter;
+}</string>
+          </property>
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="scoreLabel">
+          <property name="styleSheet">
+           <string notr="true">QLabel#scoreLabel {
+    color: #ffcf5c;
+    font-size: 12px;
+    font-weight: 500;
+    qproperty-alignment: AlignCenter;
+}</string>
+          </property>
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QSplitter" name="splitter_3">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>430</y>
+        <width>581</width>
+        <height>42</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QPushButton" name="btn_start">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton#btn_start {
+    min-height: 30px;
+    background-color: #00a878;
+    border-color: #4ce5b7;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 700;
+}
+QPushButton {
+    min-height: 30px;
+    padding: 4px 22px;
+    background-color: #252d3d;
+    color: #edf2f8;
+    border: 2px solid #394359;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+QPushButton:hover {
+    background-color: #303a4f;
+    border-color: #62708c;
+}
+
+QPushButton:pressed {
+    background-color: #161c28;
+    padding-top: 7px;
+    padding-bottom: 1px;
+}
+
+QPushButton:disabled {
+    background-color: #1b202c;
+    color: #687186;
+    border-color: #292f3d;
+}</string>
+       </property>
+       <property name="text">
+        <string>GAME START</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="btn_stop">
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+    min-height: 30px;
+    padding: 4px 22px;
+    background-color: #252d3d;
+    color: #edf2f8;
+    border: 2px solid #394359;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+QPushButton:hover {
+    background-color: #303a4f;
+    border-color: #62708c;
+}
+
+QPushButton:pressed {
+    background-color: #161c28;
+    padding-top: 7px;
+    padding-bottom: 1px;
+}
+
+QPushButton:disabled {
+    background-color: #1b202c;
+    color: #687186;
+    border-color: #292f3d;
+}
+
+QPushButton#btn_stop {
+    background-color: #d58918;
+    border-color: #ffc15c;
+    color: #ffffff;
+}</string>
+       </property>
+       <property name="text">
+        <string>GAME STOP</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QFrame" name="frame">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>611</width>
+        <height>281</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">border-radius: 18px;</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+     </widget>
+     <widget class="QLabel" name="lbl_camera">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>30</y>
+        <width>581</width>
+        <height>251</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLabel#lbl_camera {
+    background-color: #070a10;
+    border: 3px solid #30394d;
+    border-radius: 18px;
+    color: #778198;
+    font-size: 18px;
+    qproperty-alignment: AlignCenter;
+}</string>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="singlePage">
+     <widget class="QFrame" name="single_result_frame">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>290</y>
+        <width>591</width>
+        <height>111</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QFrame#single_result_frame {
+    background-color: #181e2b;
+    border: 2px solid #30394d;
+    border-radius: 16px;
+}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QWidget" name="layoutWidget_2">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>571</width>
+         <height>91</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QLabel" name="result_single">
+          <property name="styleSheet">
+           <string notr="true">QLabel#result_single {
+    color: #58e6ba;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 5px;
+    qproperty-alignment: AlignCenter;
+}</string>
+          </property>
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="score_single">
+          <property name="styleSheet">
+           <string notr="true">QLabel#score_single {
+    color: #ffcf5c;
+    font-size: 12px;
+    font-weight: 500;
+    qproperty-alignment: AlignCenter;
+}</string>
+          </property>
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QSplitter" name="splitter_5">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>410</y>
+        <width>591</width>
+        <height>42</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QPushButton" name="single_start">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton#single_start {
+    min-height: 30px;
+    background-color: #00a878;
+    border-color: #4ce5b7;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 700;
+}
+QPushButton {
+    min-height: 30px;
+    padding: 4px 22px;
+    background-color: #252d3d;
+    color: #edf2f8;
+    border: 2px solid #394359;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+QPushButton:hover {
+    background-color: #303a4f;
+    border-color: #62708c;
+}
+
+QPushButton:pressed {
+    background-color: #161c28;
+    padding-top: 7px;
+    padding-bottom: 1px;
+}
+
+QPushButton:disabled {
+    background-color: #1b202c;
+    color: #687186;
+    border-color: #292f3d;
+}</string>
+       </property>
+       <property name="text">
+        <string>GAME START</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="single_stop">
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+    min-height: 30px;
+    padding: 4px 22px;
+    background-color: #252d3d;
+    color: #edf2f8;
+    border: 2px solid #394359;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+QPushButton:hover {
+    background-color: #303a4f;
+    border-color: #62708c;
+}
+
+QPushButton:pressed {
+    background-color: #161c28;
+    padding-top: 7px;
+    padding-bottom: 1px;
+}
+
+QPushButton:disabled {
+    background-color: #1b202c;
+    color: #687186;
+    border-color: #292f3d;
+}
+
+QPushButton#single_stop {
+    background-color: #d58918;
+    border-color: #ffc15c;
+    color: #ffffff;
+}</string>
+       </property>
+       <property name="text">
+        <string>GAME STOP</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QFrame" name="frame_2">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>631</width>
+        <height>291</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">border-radius: 18px;</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+     </widget>
+     <widget class="QLabel" name="lbl_single_camera">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>591</width>
+        <height>271</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLabel#lbl_single_camera {
+    background-color: #070a10;
+    border: 3px solid #30394d;
+    border-radius: 18px;
+    color: #778198;
+    font-size: 18px;
+    qproperty-alignment: AlignCenter;
+}</string>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
