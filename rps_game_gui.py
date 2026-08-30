@@ -1,6 +1,5 @@
 """PyQt5 front end for the TensorRT rock-paper-scissors game."""
 
-from collections import deque
 import os
 import random
 import sys
@@ -17,14 +16,35 @@ from rps_game import (
     CAMERA_WIDTH,
     CLASS_NAMES,
     ENGINE_PATH,
+    PLAYER_1_WINS,
+    PLAYER_2_WINS,
     RPSDetector,
-    STABLE_FRAMES,
+    apply_round_score,
     choose_players,
+    clear_histories,
+    configure_camera,
     draw_detection,
+    make_histories,
+    record_detection,
     stable_gesture,
     winner,
 )
 from ui.ui_rsp_game import Ui_MainWindow
+
+
+GESTURE_LABELS = {0: "가위", 1: "바위", 2: "보"}
+GESTURE_EMOJIS = {0: "✌️", 1: "✊", 2: "✋"}
+
+
+def format_gesture(class_id):
+    return f"{GESTURE_EMOJIS[class_id]} {GESTURE_LABELS[class_id]}"
+
+
+def round_result_text(round_result, player1_wins_text, player2_wins_text):
+    return {
+        PLAYER_1_WINS: player1_wins_text,
+        PLAYER_2_WINS: player2_wins_text,
+    }.get(round_result, "무승부")
 
 
 def configure_qt_plugins():
@@ -52,10 +72,7 @@ class RPSGameWindow(QMainWindow):
         self.countdown_end = None
         self.next_round_at = None
         self.auto_running = False
-        self.histories = [
-            deque(maxlen=STABLE_FRAMES),
-            deque(maxlen=STABLE_FRAMES),
-        ]
+        self.histories = make_histories()
         self.single_score = [0, 0]  # computer, player
         self.multi_score = [0, 0]  # player 1, player 2
 
@@ -72,6 +89,7 @@ class RPSGameWindow(QMainWindow):
 
         self.ui.lbl_camera.setAlignment(Qt.AlignCenter)
         self.ui.lbl_single_camera.setAlignment(Qt.AlignCenter)
+        self.ui.result_single.setWordWrap(True)
         self.show_menu_page()
         self.update_score_labels()
 
@@ -102,9 +120,7 @@ class RPSGameWindow(QMainWindow):
                 self.detector = RPSDetector(ENGINE_PATH)
             if self.camera is None:
                 self.camera = cv2.VideoCapture(CAMERA_ID)
-                self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
-                self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
-                self.camera.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+                configure_camera(self.camera)
             if not self.camera.isOpened():
                 raise RuntimeError(f"카메라 {CAMERA_ID}번을 열 수 없습니다.")
             self.timer.start()
@@ -127,8 +143,7 @@ class RPSGameWindow(QMainWindow):
         self.begin_countdown()
 
     def begin_countdown(self):
-        for history in self.histories:
-            history.clear()
+        clear_histories(self.histories)
         self.countdown_end = time.monotonic() + 3.0
         self.next_round_at = None
 
@@ -174,13 +189,13 @@ class RPSGameWindow(QMainWindow):
 
     def process_single_frame(self, frame, detections):
         human = max(detections, key=lambda item: item["score"], default=None)
-        self.histories[0].append(None if human is None else human["class_id"])
+        record_detection(self.histories[0], human)
         draw_detection(frame, human, "PLAYER")
 
     def process_multi_frame(self, frame, detections):
         players = choose_players(detections, frame.shape[1])
         for index, detection in enumerate(players):
-            self.histories[index].append(None if detection is None else detection["class_id"])
+            record_detection(self.histories[index], detection)
             draw_detection(frame, detection, f"PLAYER {index + 1}")
         cv2.line(
             frame,
@@ -202,7 +217,11 @@ class RPSGameWindow(QMainWindow):
         remaining = self.countdown_end - time.monotonic()
         result_label = self.ui.result_single if self.mode == "single" else self.ui.resultLabel
         if remaining > 0:
-            result_label.setText(f"{max(1, int(remaining) + 1)}")
+            count = max(1, int(remaining) + 1)
+            if self.mode == "single":
+                result_label.setText(f"컴퓨터: ❔  |  플레이어: 준비\n{count}")
+            else:
+                result_label.setText(f"{count}")
             return
 
         self.countdown_end = None
@@ -222,16 +241,10 @@ class RPSGameWindow(QMainWindow):
 
         computer = random.choice(tuple(CLASS_NAMES))
         round_result = winner(computer, human)
-        if round_result == "PLAYER 1 WINS":
-            self.single_score[0] += 1
-            result_text = "컴퓨터 승리"
-        elif round_result == "PLAYER 2 WINS":
-            self.single_score[1] += 1
-            result_text = "플레이어 승리"
-        else:
-            result_text = "무승부"
+        apply_round_score(self.single_score, round_result)
+        result_text = round_result_text(round_result, "컴퓨터 승리", "플레이어 승리")
         self.ui.result_single.setText(
-            f"컴퓨터 {CLASS_NAMES[computer]} : {CLASS_NAMES[human]} 플레이어 - {result_text}"
+            f"컴퓨터: {format_gesture(computer)}  |  플레이어: {format_gesture(human)}\n{result_text}"
         )
         self.update_score_labels()
 
@@ -243,14 +256,8 @@ class RPSGameWindow(QMainWindow):
             return
 
         round_result = winner(player1, player2)
-        if round_result == "PLAYER 1 WINS":
-            self.multi_score[0] += 1
-            result_text = "PLAYER 1 승리"
-        elif round_result == "PLAYER 2 WINS":
-            self.multi_score[1] += 1
-            result_text = "PLAYER 2 승리"
-        else:
-            result_text = "무승부"
+        apply_round_score(self.multi_score, round_result)
+        result_text = round_result_text(round_result, "PLAYER 1 승리", "PLAYER 2 승리")
         self.ui.resultLabel.setText(
             f"{CLASS_NAMES[player1]} : {CLASS_NAMES[player2]} - {result_text}"
         )

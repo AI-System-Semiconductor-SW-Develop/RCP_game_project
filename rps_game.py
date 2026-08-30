@@ -24,12 +24,42 @@ CONFIDENCE_THRESHOLD = 0.50
 IOU_THRESHOLD = 0.45
 STABLE_FRAMES = 7
 
+PLAYER_1_WINS = "PLAYER 1 WINS"
+PLAYER_2_WINS = "PLAYER 2 WINS"
+DRAW = "DRAW"
+
 CLASS_NAMES = {0: "SCISSORS", 1: "ROCK", 2: "PAPER"}
 CLASS_COLORS = {
     0: (255, 180, 0),
     1: (0, 80, 255),
     2: (0, 210, 80),
 }
+
+
+def configure_camera(camera):
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
+    camera.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+
+
+def make_histories(count=2):
+    return [deque(maxlen=STABLE_FRAMES) for _ in range(count)]
+
+
+def clear_histories(histories):
+    for history in histories:
+        history.clear()
+
+
+def record_detection(history, detection):
+    history.append(None if detection is None else detection["class_id"])
+
+
+def apply_round_score(scores, round_result):
+    if round_result == PLAYER_1_WINS:
+        scores[0] += 1
+    elif round_result == PLAYER_2_WINS:
+        scores[1] += 1
 
 
 def letterbox(image, size):
@@ -150,9 +180,9 @@ def stable_gesture(history):
 
 def winner(left, right):
     if left == right:
-        return "DRAW"
+        return DRAW
     # rock beats scissors, paper beats rock, scissors beats paper
-    return "PLAYER 1 WINS" if (left - right) % 3 == 1 else "PLAYER 2 WINS"
+    return PLAYER_1_WINS if (left - right) % 3 == 1 else PLAYER_2_WINS
 
 
 def draw_detection(frame, detection, player_name):
@@ -178,15 +208,13 @@ def main():
 
     detector = RPSDetector(ENGINE_PATH)
     camera = cv2.VideoCapture(CAMERA_ID)
-    camera.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
-    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
-    camera.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    configure_camera(camera)
     if not camera.isOpened():
         raise RuntimeError(f"Could not open camera {CAMERA_ID}")
 
     cv2.namedWindow("Two Player RPS", cv2.WINDOW_NORMAL)
     cv2.resizeWindow("Two Player RPS", CAMERA_WIDTH, CAMERA_HEIGHT)
-    histories = [deque(maxlen=STABLE_FRAMES), deque(maxlen=STABLE_FRAMES)]
+    histories = make_histories()
     countdown_end = None
     result = None
     result_until = 0.0
@@ -202,7 +230,7 @@ def main():
             detections = detector.detect(frame)
             players = choose_players(detections, frame.shape[1])
             for index, detection in enumerate(players):
-                histories[index].append(None if detection is None else detection["class_id"])
+                record_detection(histories[index], detection)
                 draw_detection(frame, detection, f"PLAYER {index + 1}")
 
             frame_height, frame_width = frame.shape[:2]
@@ -235,10 +263,7 @@ def main():
                         result = "SHOW TWO HANDS - TRY AGAIN"
                     else:
                         round_result = winner(left, right)
-                        if round_result == "PLAYER 1 WINS":
-                            scores[0] += 1
-                        elif round_result == "PLAYER 2 WINS":
-                            scores[1] += 1
+                        apply_round_score(scores, round_result)
                         result = f"{CLASS_NAMES[left]} vs {CLASS_NAMES[right]} - {round_result}"
                     result_until = now + 3.0
                     countdown_end = None
@@ -261,8 +286,7 @@ def main():
                 result = "SCORE RESET"
                 result_until = time.monotonic() + 1.5
             if key == ord(" ") and countdown_end is None:
-                histories[0].clear()
-                histories[1].clear()
+                clear_histories(histories)
                 result = None
                 countdown_end = time.monotonic() + 3.0
     finally:
